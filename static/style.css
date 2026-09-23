@@ -1,0 +1,215 @@
+/* ---------- Paleta: depósito de bebidas — verde-garrafa + âmbar ---------- */
+:root {
+  --color-bg: #ECE7D8;
+  --color-surface: #FFFFFF;
+  --color-ink: #21281F;
+  --color-ink-soft: #55604F;
+  --color-primary: #2F6F4E;
+  --color-primary-dark: #1F4F37;
+  --color-accent: #C97A2B;
+  --color-accent-soft: #F3DFBF;
+  --color-border: #D9D3C0;
+  --color-win-bg: #DCEBDF;
+  --color-win-text: #1F4F37;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .navbar-brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+h2 {
+  margin-bottom: 0.25rem;
+}
+
+p.text-muted {
+  color: var(--color-ink-soft) !important;
+  max-width: 62ch;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  background: var(--color-primary-dark) !important;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.navbar-brand {
+  color: #F3EEDD !important;
+  font-size: 1.9rem;
+  
+}
+
+.navbar-nav .nav-link {
+  color: #D9E6DC !important;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  border-radius: 6px;
+  padding: 0.4rem 0.7rem !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF !important;
+}
+
+/* ---------- Formulários ---------- */
+.form-label {
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(47, 111, 78, 0.15);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+/* ---------- Listas ---------- */
+.list-group-item {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+/* ---------- Tabelas ---------- */
+.table {
+  background: var(--color-surface);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: var(--color-primary);
+  color: #F3EEDD;
+  font-weight: 600;
+  border: none;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+  border-color: var(--color-border);
+}
+
+.table td {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+}
+
+.table td:first-child {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+/* célula de menor preço — o "vencedor" da cotação */
+.price-winner {
+  background: var(--color-win-bg) !important;
+  color: var(--color-win-text);
+  font-weight: 700;
+  position: relative;
+}
+
+.price-winner::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
+}
+
+/* ---------- Alertas ---------- */
+.alert-warning {
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent);
+  color: #6B4210;
+}
+
+.alert-success {
+  background: var(--color-win-bg);
+  border: 1px solid var(--color-primary);
+  color: var(--color-win-text);
+}
+
+/* ---------- Abas de mês (histórico, "uma aba por planilha") ---------- */
+.nav-tabs {
+  border-bottom: 2px solid var(--color-border);
+}
+.nav-tabs .nav-link {
+  font-family: var(--font-mono);
+  color: var(--color-ink-soft);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  margin-bottom: -2px;
+  padding: 0.5rem 1rem;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--color-primary-dark);
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  background: transparent;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* ---------- Célula de preço com botão de excluir ---------- */
+.cell-preco {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.cell-preco form {
+  display: inline;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--color-border);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-delete:hover {
+  color: #B3261E;
+  background: rgba(179, 38, 30, 0.1);
+}

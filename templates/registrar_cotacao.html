@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar Cotação</h2>
+<form method="post" class="row g-3">
+    <div class="col-md-4">
+        <label class="form-label">Produto</label>
+        <select name="produto_id" class="form-select" required>
+            {% for p in produtos %}
+            <option value="{{ p.id }}">{{ p.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label">Fornecedor</label>
+        <select name="fornecedor_id" class="form-select" required>
+            {% for f in fornecedores %}
+            <option value="{{ f.id }}">{{ f.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Preço (R$)</label>
+        <input type="number" step="0.01" name="preco" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Data da cotação</label>
+        <input type="date" name="data_cotacao" class="form-control" value="{{ data_hoje }}" required>
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary">Registrar</button>
+    </div>
+</form>
+{% if produtos|length == 0 or fornecedores|length == 0 %}
+<p class="text-muted mt-3">Cadastra pelo menos um produto e um fornecedor antes de registrar cotação.</p>
+{% endif %}
+{% endblock %}

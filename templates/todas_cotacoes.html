@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Todas as Cotações</h2>
+
+{% if meses_disponiveis %}
+<ul class="nav nav-tabs mb-3">
+    {% for m in meses_disponiveis %}
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if m == mes else '' }}" href="{{ url_for('main.todas_cotacoes', mes=m) }}">{{ m }}</a>
+    </li>
+    {% endfor %}
+    {% if mes not in meses_disponiveis %}
+    <li class="nav-item">
+        <span class="nav-link active">{{ mes }} (sem cotações ainda)</span>
+    </li>
+    {% endif %}
+</ul>
+{% endif %}
+<div class="table-responsive">
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>Produto</th>
+            {% for f in fornecedores %}
+            <th>{{ f }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for linha in tabela %}
+        <tr>
+            <td>{{ linha.produto }}</td>
+            {% for f in fornecedores %}
+            {% set c = linha.precos.get(f) %}
+            <td class="{{ 'price-winner' if c and c.preco == linha.menor else '' }}">
+                {% if c %}
+                <div class="cell-preco">
+                    <span>R$ {{ "%.2f"|format(c.preco) }}</span>
+                    <form method="post" action="{{ url_for('main.excluir_cotacao') }}" onsubmit="return confirm('Excluir essa cotação?');">
+                        <input type="hidden" name="cotacao_id" value="{{ c.id }}">
+                        <input type="hidden" name="mes" value="{{ mes }}">
+                        <button type="submit" class="btn-delete" title="Excluir cotação">×</button>
+                    </form>
+                </div>
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% else %}
+        <tr><td colspan="{{ fornecedores|length + 1 }}" class="text-muted">Nenhuma cotação registrada pra esse mês.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

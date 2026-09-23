@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Fornecedores</h2>
+<form method="post" class="row g-2 mb-4">
+    <div class="col-auto">
+        <input type="text" name="nome" class="form-control" placeholder="Nome do fornecedor" required>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary">Adicionar</button>
+    </div>
+</form>
+<ul class="list-group">
+    {% for f in fornecedores %}
+    <li class="list-group-item">{{ f.nome }}</li>
+    {% else %}
+    <li class="list-group-item text-muted">Nenhum fornecedor cadastrado ainda.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
