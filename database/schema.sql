@@ -12,6 +12,20 @@ CREATE TABLE IF NOT EXISTS produto (
     unidade TEXT  -- ex: "1cx", "2cxs"
 );
 
+CREATE TABLE IF NOT EXISTS cotacao_mensal (
+    mes_referencia TEXT PRIMARY KEY, -- formato YYYY-MM
+    criada_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Cada mês tem sua própria seleção variável de produtos e quantidades.
+CREATE TABLE IF NOT EXISTS cotacao_mensal_item (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mes_referencia TEXT NOT NULL REFERENCES cotacao_mensal(mes_referencia) ON DELETE CASCADE,
+    produto_id INTEGER NOT NULL REFERENCES produto(id),
+    quantidade REAL NOT NULL DEFAULT 1 CHECK (quantidade > 0),
+    UNIQUE(mes_referencia, produto_id)
+);
+
 CREATE TABLE IF NOT EXISTS cotacao (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     produto_id INTEGER NOT NULL REFERENCES produto(id),
@@ -33,12 +47,4 @@ CREATE TABLE IF NOT EXISTS pedido_compra (
     consolidado_id INTEGER NOT NULL REFERENCES consolidado_mensal(id),
     cotacao_vencedora_id INTEGER NOT NULL REFERENCES cotacao(id),  -- RN01 aplicada aqui
     fechado_em TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
--- lista de produtos que precisam ser cotados em cada mês (base pra futura UC06 — pendências)
-CREATE TABLE IF NOT EXISTS lista_mes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    produto_id INTEGER NOT NULL REFERENCES produto(id),
-    mes_referencia TEXT NOT NULL,
-    UNIQUE(produto_id, mes_referencia)
 );

@@ -28,6 +28,15 @@ Acessa em http://localhost:5000
 ## Regras de negócio implementadas
 - **RN01**: fechamento de compra pelo menor preço por item individual (query SQL com `MIN` + `JOIN`)
 - **Detecção de outlier**: preço fora do padrão é sinalizado na hora do registro, comparando com as outras cotações do mesmo produto/mês (método IQR)
+- **Tabela mensal variável**: cada mês mantém seus próprios produtos e quantidades; o pedido e o consolidado calculam o subtotal pela quantidade do mês
+
+## Fluxo mensal
+1. Abra **Tabelas Mensais** e crie/abra o mês.
+2. Inclua os produtos desejados e informe as quantidades daquele mês.
+3. Registre os preços dos fornecedores apenas para os produtos da tabela.
+4. Consulte todas as cotações, o consolidado ou o pedido agrupado por fornecedor.
+
+As listas antigas de produtos e suas cotações são preservadas. Na primeira inicialização após a atualização, os produtos já cotados são incluídos automaticamente nas tabelas dos respectivos meses com quantidade inicial 1. A cópia/compartilhamento do pedido pelo WhatsApp fica para uma etapa futura.
 
 ## Origem do projeto
 Baseado numa planilha real usada no depósito da família antes do sistema existir — a lógica de "menor preço" já era aplicada manualmente em Excel (`MIN` + `INDEX/MATCH`).

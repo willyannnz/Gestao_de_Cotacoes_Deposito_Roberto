@@ -12,15 +12,17 @@
 <body>
 <nav class="navbar navbar-expand navbar-dark bg-dark mb-4">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">Cotação - Depósito</a>
-        <div class="navbar-nav">
-            <a class="nav-link" href="{{ url_for('main.listar_fornecedores') }}">Fornecedores</a>
-            <a class="nav-link" href="{{ url_for('main.listar_produtos') }}">Produtos</a>
-            <a class="nav-link" href="{{ url_for('main.registrar_cotacao') }}">Registrar Cotação</a>
-            <a class="nav-link" href="{{ url_for('main.consolidado', mes=mes_atual_nav) }}">Consolidado</a>
-            <a class="nav-link" href="{{ url_for('main.todas_cotacoes', mes=mes_atual_nav) }}">Todas as Cotações</a>
-            <a class="nav-link" href="{{ url_for('main.pedido_por_fornecedor', mes=mes_atual_nav) }}">Pedido de Compra</a>
-            <a class="nav-link" href="{{ url_for('main.lista_mes', mes=mes_atual_nav) }}">Lista do Mês</a>
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">Depósito de Bebidas - Cotações</a>
+        <div class="navbar-nav align-items-lg-center">
+            <a class="nav-link" href="{{ url_for('main.index') }}">Início</a>
+            <a class="nav-link" href="{{ url_for('main.lista_meses') }}">Tabelas mensais</a>
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Cadastros</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('main.listar_produtos') }}">Produtos</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('main.listar_fornecedores') }}">Fornecedores</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>

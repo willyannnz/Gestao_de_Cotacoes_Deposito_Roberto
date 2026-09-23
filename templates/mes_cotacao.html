@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-3">
+    <div><h2>Tabela de {{ mes }}</h2><p class="text-muted mb-0">Produtos e quantidades desta cotação.</p></div>
+    <a class="small" href="{{ url_for('main.lista_meses') }}">← Meses</a>
+</div>
+
+<form method="post" class="card card-body mb-4">
+    <input type="hidden" name="acao" value="adicionar">
+    <h5>Adicionar produto à tabela</h5>
+    <div class="row g-2 align-items-end">
+        <div class="col-md-4"><label class="form-label">Produto cadastrado</label><select name="produto_id" class="form-select"><option value="">Escolha (ou cadastre abaixo)</option>{% for p in produtos %}<option value="{{ p.id }}">{{ p.nome }}{% if p.unidade %} — {{ p.unidade }}{% endif %}</option>{% endfor %}</select></div>
+        <div class="col-md-3"><label class="form-label">Novo produto (opcional)</label><input name="novo_produto_nome" class="form-control" placeholder="Nome do produto"></div>
+        <div class="col-md-2"><label class="form-label">Unidade</label><input name="novo_produto_unidade" class="form-control" placeholder="ex.: cx, fardo"></div>
+        <div class="col-md-2"><label class="form-label">Quantidade</label><input type="number" min="0.01" step="0.01" name="quantidade" value="1" class="form-control" required></div>
+        <div class="col-md-1"><button class="btn btn-primary w-100">Incluir</button></div>
+    </div>
+</form>
+
+{% if itens %}
+<div class="d-flex justify-content-between align-items-center mb-2"><h5 class="mb-0">Produtos ({{ itens|length }})</h5><a class="btn btn-primary" href="{{ url_for('main.registrar_cotacao', mes=mes) }}">Registrar preços</a></div>
+<div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Produto</th><th>Quantidade</th><th>Cotações</th><th></th></tr></thead><tbody>
+{% for item in itens %}<tr><td>{{ item.nome }}{% if item.unidade %}<small class="text-muted"> · {{ item.unidade }}</small>{% endif %}</td><td><form method="post" class="d-flex gap-2"><input type="hidden" name="acao" value="quantidade"><input type="hidden" name="item_id" value="{{ item.id }}"><input type="number" min="0.01" step="0.01" name="quantidade" value="{{ item.quantidade }}" class="form-control form-control-sm" style="max-width: 110px"><button class="btn btn-outline-secondary btn-sm">Salvar</button></form></td><td>{{ item.total_cotacoes }}</td><td><form method="post" onsubmit="return confirm('Remover o produto desta tabela?');"><input type="hidden" name="acao" value="remover"><input type="hidden" name="item_id" value="{{ item.id }}"><button class="btn btn-outline-danger btn-sm">Remover</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+<p class="small text-muted mt-3 mb-0">Resultados: <a href="{{ url_for('main.todas_cotacoes', mes=mes) }}">todas as cotações</a> · <a href="{{ url_for('main.consolidado', mes=mes) }}">menores preços</a> · <a href="{{ url_for('main.pedido_por_fornecedor', mes=mes) }}">pedido por fornecedor</a></p>
+{% else %}<p class="text-muted">A tabela ainda está vazia. Inclua os produtos que deseja cotar neste mês.</p>{% endif %}
+{% endblock %}

@@ -1,16 +1,16 @@
-/* ---------- Paleta: depósito de bebidas — verde-garrafa + âmbar ---------- */
+/* ---------- Paleta: âmbar industrial ---------- */
 :root {
-  --color-bg: #ECE7D8;
-  --color-surface: #FFFFFF;
-  --color-ink: #21281F;
-  --color-ink-soft: #55604F;
-  --color-primary: #2F6F4E;
-  --color-primary-dark: #1F4F37;
-  --color-accent: #C97A2B;
-  --color-accent-soft: #F3DFBF;
-  --color-border: #D9D3C0;
-  --color-win-bg: #DCEBDF;
-  --color-win-text: #1F4F37;
+  --color-bg: #F1EADC;
+  --color-surface: #FFF9ED;
+  --color-ink: #191919;
+  --color-ink-soft: #6F6A60;
+  --color-primary: #F3A712;
+  --color-primary-dark: #191919;
+  --color-accent: #D86A2B;
+  --color-accent-soft: #F1EADC;
+  --color-border: #E6DECE;
+  --color-win-bg: #FFF0BF;
+  --color-win-text: #191919;
 
   --font-display: "Fraunces", Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
@@ -47,13 +47,13 @@ p.text-muted {
 }
 
 .navbar-brand {
-  color: #F3EEDD !important;
+  color: #FFF9ED !important;
   font-size: 1.9rem;
   
 }
 
 .navbar-nav .nav-link {
-  color: #D9E6DC !important;
+  color: #D6D3CB !important;
   font-weight: 500;
   margin-left: 0.5rem;
   border-radius: 6px;
@@ -62,8 +62,8 @@ p.text-muted {
 }
 
 .navbar-nav .nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.1);
+  color: #F3A712 !important;
 }
 
 /* ---------- Formulários ---------- */
@@ -80,26 +80,46 @@ p.text-muted {
 
 .form-control:focus, .form-select:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.2rem rgba(47, 111, 78, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(243, 167, 18, 0.22);
 }
 
 .btn-primary {
   background: var(--color-primary);
   border-color: var(--color-primary);
+  color: var(--color-ink);
   border-radius: 6px;
   font-weight: 600;
   padding: 0.5rem 1.1rem;
 }
 
 .btn-primary:hover {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #FFFFFF;
 }
 
 /* ---------- Listas ---------- */
 .list-group-item {
   border-color: var(--color-border);
   background: var(--color-surface);
+}
+
+.month-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  color: var(--color-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.month-row:hover {
+  color: var(--color-accent);
+}
+
+.month-row small {
+  color: var(--color-ink-soft);
 }
 
 /* ---------- Tabelas ---------- */
@@ -110,8 +130,8 @@ p.text-muted {
 }
 
 .table thead th {
-  background: var(--color-primary);
-  color: #F3EEDD;
+  background: var(--color-primary-dark);
+  color: #FFF9ED;
   font-weight: 600;
   border: none;
 }
@@ -144,7 +164,7 @@ p.text-muted {
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 3px;
-  background: var(--color-primary);
+  background: var(--color-accent);
 }
 
 /* ---------- Alertas ---------- */

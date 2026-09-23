@@ -16,12 +16,12 @@
         <ul class="list-group mb-2">
             {% for item in por_fornecedor[f] %}
             <li class="list-group-item d-flex justify-content-between">
-                <span>{{ item.produto }}</span>
-                <span>R$ {{ "%.2f"|format(item.preco) }}</span>
+                <span>{{ item.produto }} <small class="text-muted">× {{ item.quantidade }} · R$ {{ "%.2f"|format(item.preco) }} cada</small></span>
+                <strong>R$ {{ "%.2f"|format(item.subtotal) }}</strong>
             </li>
             {% endfor %}
         </ul>
-        <p class="text-end fw-bold">Total com {{ f }}: R$ {{ "%.2f"|format(por_fornecedor[f]|sum(attribute="preco")) }}</p>
+        <p class="text-end fw-bold">Total com {{ f }}: R$ {{ "%.2f"|format(por_fornecedor[f]|sum(attribute="subtotal")) }}</p>
     </div>
     {% endfor %}
 </div>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div><h2>Tabelas Mensais</h2><p class="text-muted mb-0">Cada mês tem sua própria seleção de produtos e quantidades.</p></div>
+</div>
+<form method="post" class="row g-2 align-items-end mb-4">
+    <div class="col-auto"><label class="form-label">Criar ou abrir mês</label><input type="month" name="mes" class="form-control" value="{{ mes_atual }}" required></div>
+    <div class="col-auto"><button class="btn btn-primary">Abrir tabela</button></div>
+</form>
+<div class="month-list">
+    {% for m in meses %}
+    <a class="month-row" href="{{ url_for('main.editar_lista_mes', mes=m.mes_referencia) }}">
+        <span><strong>{{ m.mes_referencia }}</strong><small class="d-block text-muted">{{ m.total_produtos }} produtos · {{ m.produtos_com_cotacao }} com cotação</small></span>
+        <span aria-hidden="true">→</span>
+    </a>
+    {% else %}
+    <div class="text-muted">Ainda não há tabelas mensais. Escolha um mês para começar.</div>
+    {% endfor %}
+</div>
+{% endblock %}

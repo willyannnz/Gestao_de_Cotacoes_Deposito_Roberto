@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from .db import get_db
 from .ml_outlier import detectar_outliers
@@ -8,7 +8,122 @@ bp = Blueprint("main", __name__)
 
 @bp.route("/")
 def index():
-    return redirect(url_for("main.listar_fornecedores"))
+    mes_atual = date.today().strftime("%Y-%m")
+    db = get_db()
+    resumo = db.execute(
+        """SELECT COUNT(DISTINCT i.produto_id) AS produtos,
+                  COUNT(DISTINCT c.id) AS cotacoes,
+                  COUNT(DISTINCT c.fornecedor_id) AS fornecedores
+           FROM cotacao_mensal_item i
+           LEFT JOIN cotacao c ON c.produto_id = i.produto_id AND c.mes_referencia = i.mes_referencia
+           WHERE i.mes_referencia = ?""", (mes_atual,)
+    ).fetchone()
+    meses = db.execute(
+        """SELECT mes_referencia FROM cotacao_mensal
+           ORDER BY mes_referencia DESC LIMIT 6"""
+    ).fetchall()
+    db.close()
+    return render_template("inicio.html", mes_atual=mes_atual, resumo=resumo, meses=meses)
+
+
+# ---------- Tabelas mensais de cotação ----------
+@bp.route("/meses", methods=["GET", "POST"])
+def lista_meses():
+    db = get_db()
+    if request.method == "POST":
+        mes = request.form.get("mes", "").strip()
+        try:
+            datetime.strptime(mes, "%Y-%m")
+        except ValueError:
+            flash("Informe um mês válido.", "warning")
+        else:
+            db.execute("INSERT OR IGNORE INTO cotacao_mensal (mes_referencia) VALUES (?)", (mes,))
+            db.commit()
+            db.close()
+            return redirect(url_for("main.editar_lista_mes", mes=mes))
+        db.close()
+        return redirect(url_for("main.lista_meses"))
+
+    meses = db.execute(
+        """SELECT m.mes_referencia, COUNT(i.produto_id) AS total_produtos,
+                  COUNT(DISTINCT c.produto_id) AS produtos_com_cotacao
+           FROM cotacao_mensal m
+           LEFT JOIN cotacao_mensal_item i ON i.mes_referencia = m.mes_referencia
+           LEFT JOIN cotacao c ON c.mes_referencia = i.mes_referencia AND c.produto_id = i.produto_id
+           GROUP BY m.mes_referencia ORDER BY m.mes_referencia DESC"""
+    ).fetchall()
+    db.close()
+    return render_template("meses.html", meses=meses, mes_atual=date.today().strftime("%Y-%m"))
+
+
+@bp.route("/meses/<mes>", methods=["GET", "POST"])
+def editar_lista_mes(mes):
+    db = get_db()
+    db.execute("INSERT OR IGNORE INTO cotacao_mensal (mes_referencia) VALUES (?)", (mes,))
+    if request.method == "POST":
+        acao = request.form.get("acao")
+        if acao == "adicionar":
+            nome = request.form.get("novo_produto_nome", "").strip()
+            unidade = request.form.get("novo_produto_unidade", "").strip()
+            produto_id = request.form.get("produto_id")
+            if nome:
+                cur = db.execute("INSERT INTO produto (nome, unidade) VALUES (?, ?)", (nome, unidade))
+                produto_id = cur.lastrowid
+            quantidade = request.form.get("quantidade", "1")
+            try:
+                quantidade = float(quantidade)
+                if quantidade <= 0:
+                    raise ValueError
+            except ValueError:
+                flash("A quantidade precisa ser maior que zero.", "warning")
+            else:
+                if produto_id:
+                    db.execute(
+                        "INSERT OR IGNORE INTO cotacao_mensal_item (mes_referencia, produto_id, quantidade) VALUES (?, ?, ?)",
+                        (mes, produto_id, quantidade),
+                    )
+                    flash("Produto incluído na tabela do mês.", "success")
+                else:
+                    flash("Escolha um produto cadastrado ou informe um nome novo.", "warning")
+        elif acao == "remover":
+            item_id = request.form.get("item_id")
+            item = db.execute("SELECT produto_id FROM cotacao_mensal_item WHERE id = ? AND mes_referencia = ?", (item_id, mes)).fetchone()
+            if item:
+                tem_cotacao = db.execute(
+                    "SELECT 1 FROM cotacao WHERE mes_referencia = ? AND produto_id = ? LIMIT 1", (mes, item["produto_id"])
+                ).fetchone()
+                if tem_cotacao:
+                    flash("Esse produto já tem cotações neste mês; mantenha-o na tabela para preservar o contexto.", "warning")
+                else:
+                    db.execute("DELETE FROM cotacao_mensal_item WHERE id = ?", (item_id,))
+                    flash("Produto removido da tabela do mês.", "success")
+        elif acao == "quantidade":
+            item_id = request.form.get("item_id")
+            try:
+                quantidade = float(request.form.get("quantidade", ""))
+                if quantidade <= 0:
+                    raise ValueError
+                db.execute(
+                    "UPDATE cotacao_mensal_item SET quantidade = ? WHERE id = ? AND mes_referencia = ?",
+                    (quantidade, item_id, mes),
+                )
+                flash("Quantidade atualizada.", "success")
+            except ValueError:
+                flash("A quantidade precisa ser maior que zero.", "warning")
+        db.commit()
+        db.close()
+        return redirect(url_for("main.editar_lista_mes", mes=mes))
+
+    produtos = db.execute("SELECT * FROM produto ORDER BY nome").fetchall()
+    itens = db.execute(
+        """SELECT i.id, i.quantidade, p.id AS produto_id, p.nome, p.unidade,
+                  COUNT(c.id) AS total_cotacoes
+           FROM cotacao_mensal_item i JOIN produto p ON p.id = i.produto_id
+           LEFT JOIN cotacao c ON c.produto_id = i.produto_id AND c.mes_referencia = i.mes_referencia
+           WHERE i.mes_referencia = ? GROUP BY i.id ORDER BY p.nome""", (mes,)
+    ).fetchall()
+    db.close()
+    return render_template("mes_cotacao.html", mes=mes, produtos=produtos, itens=itens)
 
 
 # ---------- Fornecedores (UC01) ----------
@@ -52,11 +167,46 @@ def registrar_cotacao():
     db = get_db()
 
     if request.method == "POST":
-        produto_id = request.form["produto_id"]
-        fornecedor_id = request.form["fornecedor_id"]
+        produto_id = request.form.get("produto_id")
+        fornecedor_id = request.form.get("fornecedor_id")
+        novo_fornecedor_nome = request.form.get("novo_fornecedor_nome", "").strip()
+
+        if not produto_id:
+            flash("Escolha um produto da tabela mensal.", "warning")
+            db.close()
+            return redirect(url_for("main.registrar_cotacao", mes=request.form.get("mes_referencia", "")))
+
+        if not fornecedor_id and not novo_fornecedor_nome:
+            flash("Escolhe um fornecedor já cadastrado ou digita um novo.", "warning")
+            db.close()
+            return redirect(url_for("main.registrar_cotacao", mes=request.form.get("mes_referencia", "")))
+
+        # cria fornecedor na hora, se for o caso
+        if novo_fornecedor_nome:
+            cur = db.execute(
+                "INSERT OR IGNORE INTO fornecedor (nome) VALUES (?)", (novo_fornecedor_nome,)
+            )
+            row = db.execute(
+                "SELECT id FROM fornecedor WHERE nome = ?", (novo_fornecedor_nome,)
+            ).fetchone()
+            fornecedor_id = row["id"]
+
         preco = float(request.form["preco"])
-        data_cotacao = request.form["data_cotacao"]  # vem do calendário HTML, formato YYYY-MM-DD sempre
-        mes_referencia = data_cotacao[:7]  # deriva o mês direto da data — nunca digitado à mão, nunca diverge
+        mes_referencia = request.form.get("mes_referencia", "").strip()
+        try:
+            datetime.strptime(mes_referencia, "%Y-%m")
+        except ValueError:
+            flash("Mês de cotação inválido.", "warning")
+            db.close()
+            return redirect(url_for("main.lista_meses"))
+
+        if not db.execute(
+            "SELECT 1 FROM cotacao_mensal_item WHERE mes_referencia = ? AND produto_id = ?",
+            (mes_referencia, produto_id),
+        ).fetchone():
+            flash("Inclua esse produto na tabela do mês antes de registrar a cotação.", "warning")
+            db.close()
+            return redirect(url_for("main.editar_lista_mes", mes=mes_referencia))
 
         # checa outlier contra as outras cotações já registradas do mesmo produto/mês
         outras = db.execute(
@@ -68,8 +218,10 @@ def registrar_cotacao():
         suspeito = resultado[-1][1]  # o preço que acabou de entrar é o último da lista
 
         db.execute(
-            """INSERT OR REPLACE INTO cotacao (produto_id, fornecedor_id, preco, mes_referencia)
-               VALUES (?, ?, ?, ?)""",
+            """INSERT INTO cotacao (produto_id, fornecedor_id, preco, mes_referencia)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT(produto_id, fornecedor_id, mes_referencia)
+               DO UPDATE SET preco = excluded.preco, data_registro = CURRENT_TIMESTAMP""",
             (produto_id, fornecedor_id, preco, mes_referencia),
         )
         db.commit()
@@ -80,13 +232,18 @@ def registrar_cotacao():
         else:
             flash("Cotação registrada.", "success")
 
-        return redirect(url_for("main.registrar_cotacao"))
+        return redirect(url_for("main.registrar_cotacao", mes=mes_referencia))
 
-    produtos = db.execute("SELECT * FROM produto ORDER BY nome").fetchall()
+    mes = request.args.get("mes", date.today().strftime("%Y-%m"))
+    produtos = db.execute(
+        "SELECT p.* FROM produto p JOIN cotacao_mensal_item i ON i.produto_id = p.id WHERE i.mes_referencia = ? ORDER BY p.nome",
+        (mes,),
+    ).fetchall()
+    db.execute("INSERT OR IGNORE INTO cotacao_mensal (mes_referencia) VALUES (?)", (mes,))
+    db.commit()
     fornecedores = db.execute("SELECT * FROM fornecedor ORDER BY nome").fetchall()
     db.close()
-    data_hoje = date.today().isoformat()
-    return render_template("registrar_cotacao.html", produtos=produtos, fornecedores=fornecedores, data_hoje=data_hoje)
+    return render_template("registrar_cotacao.html", produtos=produtos, fornecedores=fornecedores, mes=mes)
 
 
 # ---------- Consolidado Mensal — aplica RN01 ----------
@@ -95,10 +252,12 @@ def consolidado(mes):
     db = get_db()
     vencedoras = db.execute(
         """
-        SELECT p.nome AS produto, f.nome AS fornecedor_vencedor, c.preco
+        SELECT p.nome AS produto, f.nome AS fornecedor_vencedor, c.preco, i.quantidade,
+               c.preco * i.quantidade AS subtotal
         FROM cotacao c
         JOIN produto p ON p.id = c.produto_id
         JOIN fornecedor f ON f.id = c.fornecedor_id
+        JOIN cotacao_mensal_item i ON i.produto_id = c.produto_id AND i.mes_referencia = c.mes_referencia
         WHERE c.mes_referencia = ?
         AND c.preco = (
             SELECT MIN(c2.preco) FROM cotacao c2
@@ -126,22 +285,26 @@ def todas_cotacoes(mes):
 
     rows = db.execute(
         """
-        SELECT c.id AS cotacao_id, p.nome AS produto, f.nome AS fornecedor, c.preco
-        FROM cotacao c
-        JOIN produto p ON p.id = c.produto_id
-        JOIN fornecedor f ON f.id = c.fornecedor_id
-        WHERE c.mes_referencia = ?
+        SELECT p.id AS produto_id, p.nome AS produto, f.nome AS fornecedor,
+               c.id AS cotacao_id, c.preco
+        FROM cotacao_mensal_item i
+        JOIN produto p ON p.id = i.produto_id
+        LEFT JOIN cotacao c ON c.produto_id = i.produto_id AND c.mes_referencia = i.mes_referencia
+        LEFT JOIN fornecedor f ON f.id = c.fornecedor_id
+        WHERE i.mes_referencia = ?
         ORDER BY p.nome, f.nome
         """,
         (mes,),
     ).fetchall()
     db.close()
 
-    fornecedores = sorted({r["fornecedor"] for r in rows})
+    fornecedores = sorted({r["fornecedor"] for r in rows if r["fornecedor"]})
 
     produtos = {}
     for r in rows:
-        produtos.setdefault(r["produto"], {})[r["fornecedor"]] = {"preco": r["preco"], "id": r["cotacao_id"]}
+        produtos.setdefault(r["produto"], {})
+        if r["fornecedor"]:
+            produtos[r["produto"]][r["fornecedor"]] = {"preco": r["preco"], "id": r["cotacao_id"]}
 
     tabela = []
     for produto, precos in produtos.items():
@@ -180,10 +343,12 @@ def pedido_por_fornecedor(mes):
     db = get_db()
     vencedoras = db.execute(
         """
-        SELECT p.nome AS produto, f.nome AS fornecedor, c.preco
+        SELECT p.nome AS produto, f.nome AS fornecedor, c.preco, i.quantidade,
+               c.preco * i.quantidade AS subtotal
         FROM cotacao c
         JOIN produto p ON p.id = c.produto_id
         JOIN fornecedor f ON f.id = c.fornecedor_id
+        JOIN cotacao_mensal_item i ON i.produto_id = c.produto_id AND i.mes_referencia = c.mes_referencia
         WHERE c.mes_referencia = ?
         AND c.preco = (
             SELECT MIN(c2.preco) FROM cotacao c2
@@ -197,66 +362,9 @@ def pedido_por_fornecedor(mes):
 
     por_fornecedor = {}
     for r in vencedoras:
-        por_fornecedor.setdefault(r["fornecedor"], []).append({"produto": r["produto"], "preco": r["preco"]})
+        por_fornecedor.setdefault(r["fornecedor"], []).append(
+            {"produto": r["produto"], "preco": r["preco"], "quantidade": r["quantidade"], "subtotal": r["subtotal"]}
+        )
 
     fornecedores = sorted(por_fornecedor.keys())
     return render_template("pedido.html", por_fornecedor=por_fornecedor, fornecedores=fornecedores, mes=mes)
-
-
-# ---------- Lista de Produtos do Mês (base pra futura UC06 — pendências) ----------
-def _mes_anterior(mes):
-    ano, m = map(int, mes.split("-"))
-    if m == 1:
-        return f"{ano - 1}-12"
-    return f"{ano}-{m - 1:02d}"
-
-
-@bp.route("/lista-mes/<mes>", methods=["GET", "POST"])
-def lista_mes(mes):
-    db = get_db()
-
-    if request.method == "POST":
-        if request.form.get("acao") == "copiar_anterior":
-            mes_ant = _mes_anterior(mes)
-            db.execute(
-                """INSERT OR IGNORE INTO lista_mes (produto_id, mes_referencia)
-                   SELECT produto_id, ? FROM lista_mes WHERE mes_referencia = ?""",
-                (mes, mes_ant),
-            )
-            db.commit()
-            flash(f"Lista copiada de {mes_ant}.", "success")
-        else:
-            selecionados = request.form.getlist("produto_id")
-            db.execute("DELETE FROM lista_mes WHERE mes_referencia = ?", (mes,))
-            for pid in selecionados:
-                db.execute(
-                    "INSERT INTO lista_mes (produto_id, mes_referencia) VALUES (?, ?)",
-                    (pid, mes),
-                )
-            db.commit()
-            flash("Lista do mês salva.", "success")
-        db.close()
-        return redirect(url_for("main.lista_mes", mes=mes))
-
-    produtos = db.execute("SELECT * FROM produto ORDER BY nome").fetchall()
-    selecionados_ids = {
-        r["produto_id"]
-        for r in db.execute(
-            "SELECT produto_id FROM lista_mes WHERE mes_referencia = ?", (mes,)
-        ).fetchall()
-    }
-
-    mes_ant = _mes_anterior(mes)
-    tem_lista_anterior = db.execute(
-        "SELECT 1 FROM lista_mes WHERE mes_referencia = ? LIMIT 1", (mes_ant,)
-    ).fetchone() is not None
-
-    db.close()
-    return render_template(
-        "lista_mes.html",
-        produtos=produtos,
-        selecionados_ids=selecionados_ids,
-        mes=mes,
-        mes_anterior=mes_ant,
-        tem_lista_anterior=tem_lista_anterior,
-    )
