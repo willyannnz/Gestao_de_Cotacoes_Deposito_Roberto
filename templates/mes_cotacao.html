@@ -2,7 +2,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-end mb-3">
     <div><h2>Tabela de {{ mes }}</h2><p class="text-muted mb-0">Produtos e quantidades desta cotação.</p></div>
-    <a class="small" href="{{ url_for('main.lista_meses') }}">← Meses</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('main.lista_meses') }}">← Voltar para os meses</a>
 </div>
 
 <form method="post" class="card card-body mb-4">
@@ -18,10 +18,17 @@
 </form>
 
 {% if itens %}
-<div class="d-flex justify-content-between align-items-center mb-2"><h5 class="mb-0">Produtos ({{ itens|length }})</h5><a class="btn btn-primary" href="{{ url_for('main.registrar_cotacao', mes=mes) }}">Registrar preços</a></div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2"><h5 class="mb-0">Produtos ({{ itens|length }})</h5><a class="btn btn-primary" href="{{ url_for('main.registrar_cotacao', mes=mes) }}">Registrar preços dos fornecedores</a></div>
 <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Produto</th><th>Quantidade</th><th>Cotações</th><th></th></tr></thead><tbody>
 {% for item in itens %}<tr><td>{{ item.nome }}{% if item.unidade %}<small class="text-muted"> · {{ item.unidade }}</small>{% endif %}</td><td><form method="post" class="d-flex gap-2"><input type="hidden" name="acao" value="quantidade"><input type="hidden" name="item_id" value="{{ item.id }}"><input type="number" min="0.01" step="0.01" name="quantidade" value="{{ item.quantidade }}" class="form-control form-control-sm" style="max-width: 110px"><button class="btn btn-outline-secondary btn-sm">Salvar</button></form></td><td>{{ item.total_cotacoes }}</td><td><form method="post" onsubmit="return confirm('Remover o produto desta tabela?');"><input type="hidden" name="acao" value="remover"><input type="hidden" name="item_id" value="{{ item.id }}"><button class="btn btn-outline-danger btn-sm">Remover</button></form></td></tr>{% endfor %}
 </tbody></table></div>
-<p class="small text-muted mt-3 mb-0">Resultados: <a href="{{ url_for('main.todas_cotacoes', mes=mes) }}">todas as cotações</a> · <a href="{{ url_for('main.consolidado', mes=mes) }}">menores preços</a> · <a href="{{ url_for('main.pedido_por_fornecedor', mes=mes) }}">pedido por fornecedor</a></p>
+<div class="mt-4 pt-3 border-top">
+    <h5 class="mb-2">Fechar cotação</h5>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="{{ url_for('main.pedido_por_fornecedor', mes=mes) }}">Ver e copiar listas por fornecedor</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.consolidado', mes=mes) }}">Ver menores preços por produto</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.todas_cotacoes', mes=mes) }}">Comparar todos os preços</a>
+    </div>
+</div>
 {% else %}<p class="text-muted">A tabela ainda está vazia. Inclua os produtos que deseja cotar neste mês.</p>{% endif %}
 {% endblock %}

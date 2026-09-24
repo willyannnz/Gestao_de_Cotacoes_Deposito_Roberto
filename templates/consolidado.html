@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Consolidado — {{ mes }}</h2>
+<h2>Menores preços por produto — {{ mes }}</h2>
+<p><a class="btn btn-outline-secondary" href="{{ url_for('main.editar_lista_mes', mes=mes) }}">← Voltar para a tabela do mês</a></p>
 <table class="table table-striped">
     <thead>
         <tr><th>Produto</th><th>Fornecedor vencedor</th><th>Quantidade</th><th>Preço unitário</th><th>Subtotal</th></tr>

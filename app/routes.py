@@ -45,7 +45,7 @@ def lista_meses():
         return redirect(url_for("main.lista_meses"))
 
     meses = db.execute(
-        """SELECT m.mes_referencia, COUNT(i.produto_id) AS total_produtos,
+        """SELECT m.mes_referencia, COUNT(DISTINCT i.produto_id) AS total_produtos,
                   COUNT(DISTINCT c.produto_id) AS produtos_com_cotacao
            FROM cotacao_mensal m
            LEFT JOIN cotacao_mensal_item i ON i.mes_referencia = m.mes_referencia
@@ -159,6 +159,39 @@ def listar_produtos():
     produtos = db.execute("SELECT * FROM produto ORDER BY nome").fetchall()
     db.close()
     return render_template("produtos.html", produtos=produtos)
+
+
+@bp.route("/produtos/<int:produto_id>/editar", methods=["POST"])
+def editar_produto(produto_id):
+    nome = request.form["nome"].strip()
+    unidade = request.form.get("unidade", "").strip()
+    db = get_db()
+    if nome:
+        db.execute("UPDATE produto SET nome = ?, unidade = ? WHERE id = ?", (nome, unidade, produto_id))
+        db.commit()
+        flash("Produto atualizado.", "success")
+    else:
+        flash("O nome não pode ficar vazio.", "warning")
+    db.close()
+    return redirect(url_for("main.listar_produtos"))
+
+
+@bp.route("/produtos/<int:produto_id>/excluir", methods=["POST"])
+def excluir_produto(produto_id):
+    db = get_db()
+    em_uso = db.execute(
+        """SELECT 1 FROM cotacao WHERE produto_id = ?
+           UNION SELECT 1 FROM cotacao_mensal_item WHERE produto_id = ? LIMIT 1""",
+        (produto_id, produto_id),
+    ).fetchone()
+    if em_uso:
+        flash("Esse produto já tem cotação registrada ou está em alguma tabela mensal — não dá pra excluir sem perder histórico. Edita o nome se for só correção.", "warning")
+    else:
+        db.execute("DELETE FROM produto WHERE id = ?", (produto_id,))
+        db.commit()
+        flash("Produto removido.", "success")
+    db.close()
+    return redirect(url_for("main.listar_produtos"))
 
 
 # ---------- Registrar Cotação (UC03) + módulo de outlier ----------
@@ -343,8 +376,7 @@ def pedido_por_fornecedor(mes):
     db = get_db()
     vencedoras = db.execute(
         """
-        SELECT p.nome AS produto, f.nome AS fornecedor, c.preco, i.quantidade,
-               c.preco * i.quantidade AS subtotal
+        SELECT p.nome AS produto, p.unidade AS unidade, f.nome AS fornecedor, c.preco, i.quantidade
         FROM cotacao c
         JOIN produto p ON p.id = c.produto_id
         JOIN fornecedor f ON f.id = c.fornecedor_id
@@ -363,7 +395,7 @@ def pedido_por_fornecedor(mes):
     por_fornecedor = {}
     for r in vencedoras:
         por_fornecedor.setdefault(r["fornecedor"], []).append(
-            {"produto": r["produto"], "preco": r["preco"], "quantidade": r["quantidade"], "subtotal": r["subtotal"]}
+            {"produto": r["produto"], "unidade": r["unidade"], "preco": r["preco"], "quantidade": r["quantidade"]}
         )
 
     fornecedores = sorted(por_fornecedor.keys())

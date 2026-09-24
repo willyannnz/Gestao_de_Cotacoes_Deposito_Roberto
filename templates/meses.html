@@ -11,7 +11,7 @@
     {% for m in meses %}
     <a class="month-row" href="{{ url_for('main.editar_lista_mes', mes=m.mes_referencia) }}">
         <span><strong>{{ m.mes_referencia }}</strong><small class="d-block text-muted">{{ m.total_produtos }} produtos · {{ m.produtos_com_cotacao }} com cotação</small></span>
-        <span aria-hidden="true">→</span>
+        <span class="month-row-action">Abrir tabela <span aria-hidden="true">→</span></span>
     </a>
     {% else %}
     <div class="text-muted">Ainda não há tabelas mensais. Escolha um mês para começar.</div>

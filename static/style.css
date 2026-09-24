@@ -1,6 +1,6 @@
 /* ---------- Paleta: âmbar industrial ---------- */
 :root {
-  --color-bg: #F1EADC;
+  --color-bg: #fbf6ee;
   --color-surface: #FFF9ED;
   --color-ink: #191919;
   --color-ink-soft: #6F6A60;
@@ -48,22 +48,71 @@ p.text-muted {
 
 .navbar-brand {
   color: #FFF9ED !important;
+  margin-right: 1.25rem;
   font-size: 1.9rem;
-  
 }
 
 .navbar-nav .nav-link {
-  color: #D6D3CB !important;
+  color: #FFF9ED !important;
   font-weight: 500;
-  margin-left: 0.5rem;
-  border-radius: 6px;
-  padding: 0.4rem 0.7rem !important;
+  margin-left: 0.35rem;
+  border: 1px solid rgba(255, 249, 237, 0.3);
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem !important;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .navbar-nav .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #F3A712 !important;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-ink) !important;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767.98px) {
+  .navbar .container {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar-brand {
+    margin: 0 auto 0.45rem;
+  }
+
+  .navbar-nav {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navbar-nav .nav-link {
+    margin-left: 0;
+    padding: 0.35rem 0.55rem !important;
+  }
+}
+
+.home-intro {
+  min-height: 145px;
+}
+
+.home-logo {
+  display: block;
+  width: 150px;
+  max-width: 30vw;
+  height: auto;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 575.98px) {
+  .home-logo {
+    width: 112px;
+    max-width: 30vw;
+  }
 }
 
 /* ---------- Formulários ---------- */
@@ -98,6 +147,21 @@ p.text-muted {
   color: #FFFFFF;
 }
 
+.btn-outline-secondary {
+  background: var(--color-surface);
+  border: 1px solid #6F6A60;
+  color: var(--color-ink);
+  border-radius: 7px;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+}
+
+.btn-outline-secondary:hover {
+  background: #E6DECE;
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
 /* ---------- Listas ---------- */
 .list-group-item {
   border-color: var(--color-border);
@@ -111,11 +175,20 @@ p.text-muted {
   padding: 0.8rem 0;
   color: var(--color-ink);
   text-decoration: none;
-  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0.55rem;
+  padding: 0.9rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.04);
 }
 
 .month-row:hover {
-  color: var(--color-accent);
+  color: var(--color-ink);
+  background: #FFFDF8;
+  border-color: var(--color-primary);
+  box-shadow: 0 3px 8px rgba(25, 25, 25, 0.1);
+  transform: translateY(-1px);
 }
 
 .month-row small {
@@ -184,26 +257,33 @@ p.text-muted {
 .nav-tabs {
   border-bottom: 2px solid var(--color-border);
 }
+
+.nav-tabs.month-tabs {
+  border-bottom: 0;
+  gap: 0.2rem;
+}
 .nav-tabs .nav-link {
-  font-family: var(--font-mono);
-  color: var(--color-ink-soft);
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  margin-bottom: -2px;
-  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  margin: 0.2rem 0.35rem 0.2rem 0;
+  padding: 0.5rem 0.9rem;
 }
 
 .nav-tabs .nav-link:hover {
-  color: var(--color-primary-dark);
-  border-color: transparent;
+  color: var(--color-ink);
+  background: #FFFDF8;
+  border-color: var(--color-primary);
 }
 
 .nav-tabs .nav-link.active {
-  color: var(--color-primary-dark);
+  color: var(--color-ink);
   font-weight: 600;
-  background: transparent;
-  border-bottom: 2px solid var(--color-primary);
+  background: #FFE5A1;
+  border-color: #B87900;
 }
 
 /* ---------- Célula de preço com botão de excluir ---------- */
@@ -232,4 +312,66 @@ p.text-muted {
 .btn-delete:hover {
   color: #B3261E;
   background: rgba(179, 38, 30, 0.1);
+}
+
+/* ---------- Fluídez: transições suaves e profundidade sutil ---------- */
+a, .btn, .nav-link, .list-group-item, .table tbody tr, .card {
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.2s ease, transform 0.1s ease, border-color 0.15s ease;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(25, 25, 25, 0.06);
+}
+
+.table tbody tr:hover {
+  background: rgba(243, 167, 18, 0.07);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.alert {
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.05);
+}
+
+.month-row {
+  cursor: pointer;
+}
+
+.month-row:hover {
+  background: #FFFDF8;
+}
+
+.month-row-action {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #6F6A60;
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.month-row:hover .month-row-action {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+@media (max-width: 575.98px) {
+  .month-row {
+    gap: 0.75rem;
+  }
+
+  .month-row-action {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-nav .nav-link {
+    margin: 0.15rem;
+  }
 }

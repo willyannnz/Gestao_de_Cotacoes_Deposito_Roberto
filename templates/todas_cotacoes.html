@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Todas as Cotações</h2>
+<p><a class="btn btn-outline-secondary" href="{{ url_for('main.editar_lista_mes', mes=mes) }}">← Voltar para a tabela do mês</a></p>
 
 {% if meses_disponiveis %}
-<ul class="nav nav-tabs mb-3">
+<ul class="nav nav-tabs month-tabs mb-3">
     {% for m in meses_disponiveis %}
     <li class="nav-item">
         <a class="nav-link {{ 'active' if m == mes else '' }}" href="{{ url_for('main.todas_cotacoes', mes=m) }}">{{ m }}</a>

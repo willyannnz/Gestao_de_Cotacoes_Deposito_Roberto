@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="mb-4">
-    <p class="text-uppercase text-muted small mb-1">Depósito do Roberto</p>
-    <h1 class="mb-2">Sistema de Cotações</h1>
-    <p class="text-muted">Organize os produtos do mês e compare os preços dos fornecedores.</p>
+<section class="home-intro d-flex justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-2">Sistema de Cotações</h1>
+        <p class="text-muted mb-0">Organize os produtos do mês e compare os preços dos fornecedores.</p>
+    </div>
+    <img class="home-logo" src="{{ url_for('static', filename='logo-deposito.png') }}" alt="Depósito do Roberto — Bebidas e Conveniência">
 </section>
 
 <div class="card mb-4">
@@ -19,7 +21,7 @@
 {% if meses %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
     <h2 class="h5 mb-0">Meses recentes</h2>
-    <a class="small" href="{{ url_for('main.lista_meses') }}">Ver todos</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('main.lista_meses') }}">Ver todas as tabelas</a>
 </div>
 <div class="d-flex flex-wrap gap-2">
     {% for item in meses %}
