@@ -11,7 +11,21 @@
 </form>
 <ul class="list-group">
     {% for f in fornecedores %}
-    <li class="list-group-item">{{ f.nome }}</li>
+    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span>{{ f.nome }}</span>
+        <div class="d-flex flex-wrap gap-2">
+            <details>
+                <summary class="btn btn-outline-secondary btn-sm">Editar nome</summary>
+                <form method="post" action="{{ url_for('main.editar_fornecedor', fornecedor_id=f.id) }}" class="d-flex gap-2 mt-2">
+                    <input type="text" name="nome" class="form-control form-control-sm" value="{{ f.nome }}" required>
+                    <button class="btn btn-primary btn-sm">Salvar</button>
+                </form>
+            </details>
+            <form method="post" action="{{ url_for('main.excluir_fornecedor', fornecedor_id=f.id) }}" onsubmit="return confirm('Excluir esse fornecedor do cadastro?');">
+                <button class="btn btn-outline-danger btn-sm">Excluir</button>
+            </form>
+        </div>
+    </li>
     {% else %}
     <li class="list-group-item text-muted">Nenhum fornecedor cadastrado ainda.</li>
     {% endfor %}

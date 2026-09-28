@@ -6,6 +6,11 @@ from .ml_outlier import detectar_outliers
 bp = Blueprint("main", __name__)
 
 
+@bp.app_context_processor
+def inject_sidebar_month():
+    return {"mes_atual_sidebar": date.today().strftime("%Y-%m")}
+
+
 @bp.route("/")
 def index():
     mes_atual = date.today().strftime("%Y-%m")
@@ -65,26 +70,28 @@ def editar_lista_mes(mes):
         if acao == "adicionar":
             nome = request.form.get("novo_produto_nome", "").strip()
             unidade = request.form.get("novo_produto_unidade", "").strip()
-            produto_id = request.form.get("produto_id")
-            if nome:
-                cur = db.execute("INSERT INTO produto (nome, unidade) VALUES (?, ?)", (nome, unidade))
-                produto_id = cur.lastrowid
+            produto_id = None
             quantidade = request.form.get("quantidade", "1")
             try:
                 quantidade = float(quantidade)
-                if quantidade <= 0:
+                if quantidade <= 0 or not nome:
                     raise ValueError
             except ValueError:
-                flash("A quantidade precisa ser maior que zero.", "warning")
+                flash("Informe o nome do produto e uma quantidade maior que zero.", "warning")
             else:
-                if produto_id:
-                    db.execute(
-                        "INSERT OR IGNORE INTO cotacao_mensal_item (mes_referencia, produto_id, quantidade) VALUES (?, ?, ?)",
-                        (mes, produto_id, quantidade),
-                    )
-                    flash("Produto incluído na tabela do mês.", "success")
+                existente = db.execute(
+                    "SELECT id FROM produto WHERE nome = ? COLLATE NOCASE", (nome,)
+                ).fetchone()
+                if existente:
+                    produto_id = existente["id"]
                 else:
-                    flash("Escolha um produto cadastrado ou informe um nome novo.", "warning")
+                    cur = db.execute("INSERT INTO produto (nome, unidade) VALUES (?, ?)", (nome, unidade))
+                    produto_id = cur.lastrowid
+                cur = db.execute(
+                    "INSERT OR IGNORE INTO cotacao_mensal_item (mes_referencia, produto_id, quantidade) VALUES (?, ?, ?)",
+                    (mes, produto_id, quantidade),
+                )
+                flash("Produto incluído na tabela do mês." if cur.rowcount else "Esse produto já está na tabela do mês.", "success")
         elif acao == "remover":
             item_id = request.form.get("item_id")
             item = db.execute("SELECT produto_id FROM cotacao_mensal_item WHERE id = ? AND mes_referencia = ?", (item_id, mes)).fetchone()
@@ -114,7 +121,6 @@ def editar_lista_mes(mes):
         db.close()
         return redirect(url_for("main.editar_lista_mes", mes=mes))
 
-    produtos = db.execute("SELECT * FROM produto ORDER BY nome").fetchall()
     itens = db.execute(
         """SELECT i.id, i.quantidade, p.id AS produto_id, p.nome, p.unidade,
                   COUNT(c.id) AS total_cotacoes
@@ -123,7 +129,7 @@ def editar_lista_mes(mes):
            WHERE i.mes_referencia = ? GROUP BY i.id ORDER BY p.nome""", (mes,)
     ).fetchall()
     db.close()
-    return render_template("mes_cotacao.html", mes=mes, produtos=produtos, itens=itens)
+    return render_template("mes_cotacao.html", mes=mes, itens=itens)
 
 
 # ---------- Fornecedores (UC01) ----------
@@ -141,6 +147,41 @@ def listar_fornecedores():
     fornecedores = db.execute("SELECT * FROM fornecedor ORDER BY nome").fetchall()
     db.close()
     return render_template("fornecedores.html", fornecedores=fornecedores)
+
+
+@bp.route("/fornecedores/<int:fornecedor_id>/editar", methods=["POST"])
+def editar_fornecedor(fornecedor_id):
+    nome = request.form.get("nome", "").strip()
+    db = get_db()
+    if nome:
+        duplicado = db.execute(
+            "SELECT 1 FROM fornecedor WHERE nome = ? COLLATE NOCASE AND id <> ?",
+            (nome, fornecedor_id),
+        ).fetchone()
+        if duplicado:
+            flash("Já existe outro fornecedor com esse nome.", "warning")
+        else:
+            db.execute("UPDATE fornecedor SET nome = ? WHERE id = ?", (nome, fornecedor_id))
+            db.commit()
+            flash("Fornecedor atualizado.", "success")
+    else:
+        flash("O nome não pode ficar vazio.", "warning")
+    db.close()
+    return redirect(url_for("main.listar_fornecedores"))
+
+
+@bp.route("/fornecedores/<int:fornecedor_id>/excluir", methods=["POST"])
+def excluir_fornecedor(fornecedor_id):
+    db = get_db()
+    em_uso = db.execute("SELECT 1 FROM cotacao WHERE fornecedor_id = ? LIMIT 1", (fornecedor_id,)).fetchone()
+    if em_uso:
+        flash("Esse fornecedor tem cotações no histórico. Edite o nome se precisar corrigir; não é possível excluir sem perder o histórico.", "warning")
+    else:
+        db.execute("DELETE FROM fornecedor WHERE id = ?", (fornecedor_id,))
+        db.commit()
+        flash("Fornecedor removido.", "success")
+    db.close()
+    return redirect(url_for("main.listar_fornecedores"))
 
 
 # ---------- Produtos (UC02) ----------
