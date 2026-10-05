@@ -21,7 +21,7 @@
     <aside class="sidebar" id="sidebar">
         <a class="sidebar-brand" href="{{ url_for('main.index') }}">
             <img src="{{ url_for('static', filename='logo_deposito_claro.png') }}" alt="" class="sidebar-logo">
-            <span>Cotações - Depósito</span>
+            <span>Cotações</span>
         </a>
         <nav class="sidebar-nav">
             <a class="sidebar-link {{ 'active' if request.endpoint == 'main.index' else '' }}" href="{{ url_for('main.index') }}">
