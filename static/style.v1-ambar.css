@@ -1,0 +1,453 @@
+/* ---------- Paleta: âmbar industrial ---------- */
+:root {
+  --color-bg: #fbf6ee;
+  --color-surface: #FFF9ED;
+  --color-ink: #191919;
+  --color-ink-soft: #6F6A60;
+  --color-primary: #F3A712;
+  --color-primary-dark: #191919;
+  --color-accent: #D86A2B;
+  --color-accent-soft: #F1EADC;
+  --color-border: #E6DECE;
+  --color-win-bg: #FFF0BF;
+  --color-win-text: #191919;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .navbar-brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+h2 {
+  margin-bottom: 0.25rem;
+}
+
+p.text-muted {
+  color: var(--color-ink-soft) !important;
+  max-width: 62ch;
+}
+
+/* ---------- Sidebar fixa à esquerda ---------- */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex: 0 0 auto;
+  background: var(--color-primary-dark);
+  color: #FFF9ED;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: #FFF9ED !important;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 249, 237, 0.15);
+}
+
+.sidebar-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: rgba(255, 249, 237, 0.85);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+}
+
+.sidebar-icon {
+  font-size: 1.05rem;
+  width: 1.4rem;
+  text-align: center;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 249, 237, 0.08);
+  color: #FFF9ED;
+}
+
+.sidebar-link.active {
+  background: var(--color-primary);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.main-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sidebar-toggle {
+  position: fixed;
+  top: 0.85rem;
+  left: 0.85rem;
+  z-index: 1050;
+  background: var(--color-primary-dark);
+  color: #FFF9ED;
+  border: none;
+  border-radius: 8px;
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.2rem;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    z-index: 1040;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    padding-top: 3.5rem;
+  }
+}
+
+.home-intro {
+  min-height: 145px;
+}
+
+.home-logo {
+  display: block;
+  width: 150px;
+  max-width: 30vw;
+  height: auto;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 575.98px) {
+  .home-logo {
+    width: 112px;
+    max-width: 30vw;
+  }
+}
+
+/* ---------- Formulários ---------- */
+.form-label {
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(243, 167, 18, 0.22);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-ink);
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+}
+
+.btn-primary:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.btn-outline-secondary {
+  background: var(--color-surface);
+  border: 1px solid #6F6A60;
+  color: var(--color-ink);
+  border-radius: 7px;
+  font-weight: 600;
+  padding: 0.5rem 0.9rem;
+}
+
+.btn-outline-secondary:hover {
+  background: #E6DECE;
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+/* ---------- Listas ---------- */
+.list-group-item {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+}
+
+.month-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  color: var(--color-ink);
+  text-decoration: none;
+  margin-bottom: 0.55rem;
+  padding: 0.9rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.04);
+}
+
+.month-row:hover {
+  color: var(--color-ink);
+  background: #FFFDF8;
+  border-color: var(--color-primary);
+  box-shadow: 0 3px 8px rgba(25, 25, 25, 0.1);
+  transform: translateY(-1px);
+}
+
+.month-row small {
+  color: var(--color-ink-soft);
+}
+
+/* ---------- Tabelas ---------- */
+.table {
+  background: var(--color-surface);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: var(--color-primary-dark);
+  color: #FFF9ED;
+  font-weight: 600;
+  border: none;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+  border-color: var(--color-border);
+}
+
+.table td {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+}
+
+.table td:first-child {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+/* célula de menor preço — o "vencedor" da cotação */
+.price-winner {
+  background: var(--color-win-bg) !important;
+  color: var(--color-win-text);
+  font-weight: 700;
+  position: relative;
+}
+
+.price-winner::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--color-accent);
+}
+
+/* ---------- Alertas ---------- */
+.alert-warning {
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent);
+  color: #6B4210;
+}
+
+.alert-success {
+  background: var(--color-win-bg);
+  border: 1px solid var(--color-primary);
+  color: var(--color-win-text);
+}
+
+/* ---------- Abas de mês (histórico, "uma aba por planilha") ---------- */
+.nav-tabs {
+  border-bottom: 2px solid var(--color-border);
+}
+
+.nav-tabs.month-tabs {
+  border-bottom: 0;
+  gap: 0.2rem;
+}
+.nav-tabs .nav-link {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  margin: 0.2rem 0.35rem 0.2rem 0;
+  padding: 0.5rem 0.9rem;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--color-ink);
+  background: #FFFDF8;
+  border-color: var(--color-primary);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--color-ink);
+  font-weight: 600;
+  background: #FFE5A1;
+  border-color: #B87900;
+}
+
+/* ---------- Célula de preço com botão de excluir ---------- */
+.cell-preco {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.cell-preco form {
+  display: inline;
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  color: var(--color-border);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.2rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-delete:hover {
+  color: #B3261E;
+  background: rgba(179, 38, 30, 0.1);
+}
+
+/* ---------- Fluídez: transições suaves e profundidade sutil ---------- */
+a, .btn, .nav-link, .list-group-item, .table tbody tr, .card {
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.2s ease, transform 0.1s ease, border-color 0.15s ease;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(25, 25, 25, 0.06);
+}
+
+.table tbody tr:hover {
+  background: rgba(243, 167, 18, 0.07);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.alert {
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.05);
+}
+
+.month-row {
+  cursor: pointer;
+}
+
+.month-row:hover {
+  background: #FFFDF8;
+}
+
+.month-row-action {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #6F6A60;
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.month-row:hover .month-row-action {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.product-edit-summary {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.product-edit-summary .edit-hint {
+  margin-left: 0.65rem;
+  color: var(--color-ink-soft);
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 575.98px) {
+  .month-row {
+    gap: 0.75rem;
+  }
+
+  .month-row-action {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.85rem;
+  }
+
+  .navbar-nav .nav-link {
+    margin: 0.15rem;
+  }
+}

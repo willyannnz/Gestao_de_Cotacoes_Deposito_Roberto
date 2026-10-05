@@ -7,12 +7,12 @@
 <ul class="nav nav-tabs month-tabs mb-3">
     {% for m in meses_disponiveis %}
     <li class="nav-item">
-        <a class="nav-link {{ 'active' if m == mes else '' }}" href="{{ url_for('main.todas_cotacoes', mes=m) }}">{{ m }}</a>
+        <a class="nav-link {{ 'active' if m == mes else '' }}" href="{{ url_for('main.todas_cotacoes', mes=m) }}">{{ m|mes_extenso }}</a>
     </li>
     {% endfor %}
     {% if mes not in meses_disponiveis %}
     <li class="nav-item">
-        <span class="nav-link active">{{ mes }} (sem cotações ainda)</span>
+        <span class="nav-link active">{{ mes|mes_extenso }} (sem cotações ainda)</span>
     </li>
     {% endif %}
 </ul>

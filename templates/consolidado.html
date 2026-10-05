@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Menores preços por produto — {{ mes }}</h2>
+<h2>Menores preços por produto — {{ mes|mes_extenso }}</h2>
 <p><a class="btn btn-outline-secondary" href="{{ url_for('main.editar_lista_mes', mes=mes) }}">← Voltar para a tabela do mês</a></p>
 <table class="table table-striped">
     <thead>
@@ -12,7 +12,7 @@
             <td>{{ v.produto }}</td>
             <td>{{ v.fornecedor_vencedor }}</td>
             <td>{{ v.quantidade }}</td>
-            <td>R$ {{ "%.2f"|format(v.preco) }}</td>
+            <td class="price-winner">R$ {{ "%.2f"|format(v.preco) }}</td>
             <td>R$ {{ "%.2f"|format(v.subtotal) }}</td>
         </tr>
         {% else %}
